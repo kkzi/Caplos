@@ -117,47 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DefaultCfg" xml:space="preserve">
-    <value># ======== Replacements ========
-
-# WARNING: Avoid looping definitions or redirections
-
-Replace.VK_KEY_Q        = VK_INSERT
-Replace.VK_KEY_A        = VK_HOME
-Replace.VK_KEY_W        = VK_HOME
-Replace.VK_KEY_S        = VK_END
-Replace.VK_KEY_E        = VK_END
-Replace.VK_KEY_D        = VK_NEXT
-
-Replace.VK_KEY_Z        = VK_KEY_1
-Replace.VK_KEY_X        = VK_KEY_2
-Replace.VK_KEY_C        = VK_KEY_3
-Replace.VK_KEY_V        = VK_KEY_4
-Replace.VK_KEY_M        = VK_KEY_7
-Replace.VK_OEM_COMMA    = VK_KEY_8
-Replace.VK_OEM_PERIOD   = VK_KEY_9
-Replace.VK_OEM_2        = VK_KEY_0 # VK_KEY_0: [?/]
-
-
-Replace.VK_KEY_H        = VK_LEFT
-Replace.VK_KEY_J        = VK_DOWN
-Replace.VK_KEY_K        = VK_UP
-Replace.VK_KEY_L        = VK_RIGHT
-
-Replace.VK_OEM_7        = VK_BACK # VK_OEM_7: ['"]
-Replace.VK_OEM_1        = VK_RETURN # VK_OEM_1: [;:]
-
-Replace.VK_KEY_F        = VK_OEM_MINUS
-Replace.VK_KEY_G        = VK_OEM_PLUS
-Replace.VK_KEY_R        = VK_OEM_3 # VK_OEM_3: [`~]
-Replace.VK_KEY_T        = VK_OEM_5 # VK_OEM_3: [\|]
-# VK_KEY_Y is ignored.
-Replace.VK_KEY_U        = VK_ESCAPE
-# VK_KEY_I is ignored.
-Replace.VK_KEY_O        = VK_OEM_4 # VK_OEM_4: [[{]
-Replace.VK_KEY_P        = VK_OEM_6 # VK_OEM_6: []}]</value>
-  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Caplos" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Caplos.cfg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="logo_256" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\logo-256.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

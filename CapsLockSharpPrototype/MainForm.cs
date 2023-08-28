@@ -114,23 +114,10 @@ namespace CapsLockSharpPrototype
             }
             NotifyIcon = notifyIcon;
 
-            /*normalWheel = MouseConfig.GetMouseWheel();
-            fastWheel = MouseConfig.GetMouseWheel() * 2;
-            if (fastWheel < 0) fastWheel = -1;
-            if (fastWheel > 20) fastWheel = 20;*/
-
             Program.GlobalController = new Controller();
             Program.GlobalController.SetupKeyboardHooks((y) =>
             {
                 TrayIcon.RefleshIcon(notifyIcon);
-                /*if (Control.IsKeyLocked(Keys.CapsLock))
-                {
-                    MouseConfig.SetMouseWheel((uint)fastWheel);
-                }
-                else
-                {
-                    MouseConfig.SetMouseWheel((uint)normalWheel);
-                }*/
             });
         }
 

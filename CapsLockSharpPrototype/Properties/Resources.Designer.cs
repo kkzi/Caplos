@@ -61,28 +61,12 @@ namespace CapsLockSharpPrototype.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to # ======== Replacements ========
-        ///
-        ///# WARNING: Avoid looping definitions or redirections
-        ///
-        ///Replace.VK_KEY_Q        = VK_INSERT
-        ///Replace.VK_KEY_A        = VK_HOME
-        ///Replace.VK_KEY_W        = VK_HOME
-        ///Replace.VK_KEY_S        = VK_END
-        ///Replace.VK_KEY_E        = VK_END
-        ///Replace.VK_KEY_D        = VK_NEXT
-        ///
-        ///Replace.VK_KEY_Z        = VK_KEY_1
-        ///Replace.VK_KEY_X        = VK_KEY_2
-        ///Replace.VK_KEY_C        = VK_KEY_3
-        ///Replace.VK_KEY_V        = VK_KEY_4
-        ///Replace.VK_KEY_M        = VK_KEY_7
-        ///Replace.VK_OEM_COMMA    = VK_KEY_8
-        ///Replace.V [rest of string was truncated]&quot;;.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string DefaultCfg {
+        internal static byte[] Caplos {
             get {
-                return ResourceManager.GetString("DefaultCfg", resourceCulture);
+                object obj = ResourceManager.GetObject("Caplos", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

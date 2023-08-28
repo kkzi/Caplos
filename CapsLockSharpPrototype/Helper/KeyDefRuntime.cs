@@ -229,7 +229,7 @@ namespace CapsLockSharpPrototype.Helper
             if (File.Exists(path)) return;
             try
             {
-                File.WriteAllText(path, Properties.Resources.DefaultCfg);
+                File.WriteAllBytes(path, Properties.Resources.Caplos);
             }
             catch (System.Exception)
             {
