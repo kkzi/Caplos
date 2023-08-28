@@ -1,3 +1,24 @@
+# Caplos 修改版
+
+修改项如下：
+- [x] 修改启动时帮助窗口先显示后隐藏的问题
+- [x] 短按 CAPSLOCK 为大小写锁定功能，长按 CAPSLOCK 无操作，视为犹豫行为
+- [x] 按个人习惯调整几个键位 
+   - CAPSLOCK+A -> HOME
+   - CAPSLOCK+E -> END
+- [ ] 调整配置文件格式
+- [ ] 支持 CAPSLOCK 组合按键
+
+
+<br/>
+<br/>
+<br/>
+
+
+> 以下为原 [repo](https://github.com/pluveto/caplos/) 说明 
+----
+
+
 # Caplos - CapsLock#
 
 A tool to squeeze the power of your CapsLock key.
