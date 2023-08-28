@@ -116,7 +116,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Resources\Calos.cfg" />
+    <None Include="Resources\Caplos.cfg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
