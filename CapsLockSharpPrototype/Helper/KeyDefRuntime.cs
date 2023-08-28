@@ -249,7 +249,7 @@ namespace CapsLockSharpPrototype.Helper
             {
                 Application.Exit();
             }
-            
+
             foreach (var line in rawLines)
             {
                 // Replace.VK_OEM_2        = VK_KEY_0 # VK_KEY_0: [?/]
@@ -268,8 +268,8 @@ namespace CapsLockSharpPrototype.Helper
                 {
                     // VK_OEM_2        = VK_KEY_0 
                     lineTrimed = lineTrimed.Substring(replaceSettingPrefix.Length);
-                    if (lineTrimed.IndexOf('=')==0) continue;
-                    var lineSplited = lineTrimed.Split(new[] { '=' },2);
+                    if (lineTrimed.IndexOf('=') == 0) continue;
+                    var lineSplited = lineTrimed.Split(new[] { '=' }, 2);
                     var key = lineSplited[0].Trim();// VK_OEM_2
                     var value = lineSplited[1].Trim();// VK_KEY_0
 
@@ -282,11 +282,11 @@ namespace CapsLockSharpPrototype.Helper
                     ret.Type = FuncType.Replace;
                     yield return ret;
                 }
-                
+
             }
         }
         // List of Virtual Key Codes
         // http://www.kbdedit.com/manual/low_level_vk_list.html
-        public static IEnumerable<KeyDef> KeyDefs;        
+        public static IEnumerable<KeyDef> KeyDefs;
     }
 }

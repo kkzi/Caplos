@@ -120,7 +120,7 @@ namespace CapsLockSharpPrototype
             if (fastWheel > 20) fastWheel = 20;*/
 
             Program.GlobalController = new Controller();
-            Program.GlobalController.SetupKeyboardHooks((x, y) =>
+            Program.GlobalController.SetupKeyboardHooks((y) =>
             {
                 TrayIcon.RefleshIcon(notifyIcon);
                 /*if (Control.IsKeyLocked(Keys.CapsLock))

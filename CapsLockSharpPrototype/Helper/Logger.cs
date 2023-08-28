@@ -6,7 +6,7 @@ namespace CapsLockSharpPrototype.Helper
     {
         public static void Info(string text)
         {
-            Console.WriteLine(DateTime.Now.ToString("T")+" > " + text);
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss.fff")+" > " + text);
         }
     }
 }
