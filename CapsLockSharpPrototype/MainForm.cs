@@ -10,17 +10,7 @@ namespace CapsLockSharpPrototype
     {
         public static NotifyIcon NotifyIcon { get; private set; }
         public string AppName { get; private set; } = "Caplos";
-        private bool windowCreate = true;
 
-        protected override void OnActivated(EventArgs e)
-        {
-            if (windowCreate)
-            {
-                base.Visible = false;
-                windowCreate = false;
-            }
-            base.OnActivated(e);
-        }
         protected override CreateParams CreateParams
         {
             get
@@ -34,7 +24,10 @@ namespace CapsLockSharpPrototype
         public MainForm()
         {
             InitializeComponent();
-            Helper.KeyDefRuntime.KeyDefs = Helper.KeyDefRuntime.SetUpKeyDefs();
+            HideWindow();
+
+            LoadHooks();
+            CheckStartWithSystem();
             TrayIcon.RefleshIcon(notifyIcon);
         }
 
@@ -44,10 +37,74 @@ namespace CapsLockSharpPrototype
             Application.Exit();
             Environment.Exit(0);
         }
-        /*int normalWheel = 0;
-        int fastWheel = 0;*/
-        private void MainForm_Load(object sender, EventArgs e)
+
+        private void AboutMenuItem_Click(object sender, EventArgs e)
         {
+            var x = new About();
+            x.ShowDialog();
+            x.Dispose();
+        }
+
+        private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            ShowWindow();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            HideWindow();
+            e.Cancel = true;
+            //notifyIcon.Visible = false;
+        }
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                ShowInTaskbar = false;
+            }
+        }
+
+        private void HelpMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowWindow();
+        }
+
+        private void startWithSystem_CheckedChanged(object sender, EventArgs e)
+        {
+            var currentEnabled = AutoStart.CheckEnabled(AppName);
+            if (startWithSystem.Checked == currentEnabled)
+            {
+                return;
+            }
+
+            if (startWithSystem.Checked)
+            {
+                AutoStart.Enable(AppName, "\"" + Application.ExecutablePath + "\"");
+            }
+            else
+            {
+                AutoStart.Disable(AppName);
+            }
+        }
+
+        private void HideWindow()
+        {
+            WindowState = FormWindowState.Minimized;
+            ShowInTaskbar = false;
+            Visible = false;
+        }
+
+        private void ShowWindow()
+        {
+            ShowInTaskbar = true;
+            WindowState = FormWindowState.Normal;
+            Visible = true;
+            Activate();
+        }
+        private void LoadHooks()
+        {
+            KeyDefRuntime.KeyDefs = KeyDefRuntime.SetUpKeyDefs();
             foreach (var item in KeyDefRuntime.KeyDefs)
             {
                 if (item.Type == KeyDefRuntime.FuncType.Replace)
@@ -75,70 +132,11 @@ namespace CapsLockSharpPrototype
                     MouseConfig.SetMouseWheel((uint)normalWheel);
                 }*/
             });
-            CheckStartWithSystem();
         }
 
         private void CheckStartWithSystem()
         {
             startWithSystem.Checked = AutoStart.CheckEnabled(AppName);
-        }
-
-        private void AboutMenuItem_Click(object sender, EventArgs e)
-        {
-            var x = new About();
-            x.ShowDialog();
-            x.Dispose();
-        }
-
-        private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            Show();
-            WindowState = FormWindowState.Normal;
-            Visible = true;
-            ShowInTaskbar = true;
-            Activate();
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            WindowState = FormWindowState.Minimized;
-            Hide();
-            e.Cancel = true;
-            //notifyIcon.Visible = false;
-        }
-
-        private void MainForm_SizeChanged(object sender, EventArgs e)
-        {
-            if (WindowState == FormWindowState.Minimized)
-            {
-                ShowInTaskbar = false;
-            }
-        }
-
-        private void HelpMenuItem_Click(object sender, EventArgs e)
-        {
-            Show();
-            WindowState = FormWindowState.Normal;
-            ShowInTaskbar = true;
-            Activate();
-        }
-
-        private void startWithSystem_CheckedChanged(object sender, EventArgs e)
-        {
-            var currentEnabled = AutoStart.CheckEnabled(AppName);
-            if (startWithSystem.Checked == currentEnabled)
-            {
-                return;
-            }
-
-            if (startWithSystem.Checked)
-            {
-                AutoStart.Enable(AppName, "\"" + Application.ExecutablePath + "\"");
-            }
-            else
-            {
-                AutoStart.Disable(AppName);
-            }
         }
     }
 }

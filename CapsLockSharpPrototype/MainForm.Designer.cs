@@ -34,7 +34,6 @@ namespace CapsLockSharpPrototype
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,12 +69,12 @@ namespace CapsLockSharpPrototype
             this.toolStripMenuItem2,
             this.quitMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(125, 98);
+            this.contextMenuStrip.Size = new System.Drawing.Size(127, 98);
             // 
             // helpMenuItem
             // 
             this.helpMenuItem.Name = "helpMenuItem";
-            this.helpMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.helpMenuItem.Size = new System.Drawing.Size(126, 22);
             this.helpMenuItem.Text = "帮助";
             this.helpMenuItem.Click += new System.EventHandler(this.HelpMenuItem_Click);
             // 
@@ -83,26 +82,26 @@ namespace CapsLockSharpPrototype
             // 
             this.startWithSystem.CheckOnClick = true;
             this.startWithSystem.Name = "startWithSystem";
-            this.startWithSystem.Size = new System.Drawing.Size(124, 22);
+            this.startWithSystem.Size = new System.Drawing.Size(126, 22);
             this.startWithSystem.Text = "开机启动";
             this.startWithSystem.CheckedChanged += new System.EventHandler(this.startWithSystem_CheckedChanged);
             // 
             // aboutMenuItem
             // 
             this.aboutMenuItem.Name = "aboutMenuItem";
-            this.aboutMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.aboutMenuItem.Size = new System.Drawing.Size(126, 22);
             this.aboutMenuItem.Text = "关于";
             this.aboutMenuItem.Click += new System.EventHandler(this.AboutMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(121, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(123, 6);
             // 
             // quitMenuItem
             // 
             this.quitMenuItem.Name = "quitMenuItem";
-            this.quitMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.quitMenuItem.Size = new System.Drawing.Size(126, 22);
             this.quitMenuItem.Text = "退出";
             this.quitMenuItem.Click += new System.EventHandler(this.QuitMenuItem_Click);
             // 
@@ -119,12 +118,12 @@ namespace CapsLockSharpPrototype
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.label1);
-            this.splitContainer.Panel1.Font = new System.Drawing.Font("微软雅黑", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.splitContainer.Panel1.Font = new System.Drawing.Font("Microsoft YaHei", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             // 
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.keysListView);
-            this.splitContainer.Size = new System.Drawing.Size(289, 378);
+            this.splitContainer.Size = new System.Drawing.Size(315, 378);
             this.splitContainer.SplitterDistance = 37;
             this.splitContainer.SplitterWidth = 6;
             this.splitContainer.TabIndex = 1;
@@ -133,7 +132,7 @@ namespace CapsLockSharpPrototype
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(3, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(69, 20);
             this.label1.TabIndex = 0;
@@ -150,7 +149,7 @@ namespace CapsLockSharpPrototype
             this.keysListView.Location = new System.Drawing.Point(0, 0);
             this.keysListView.MultiSelect = false;
             this.keysListView.Name = "keysListView";
-            this.keysListView.Size = new System.Drawing.Size(289, 335);
+            this.keysListView.Size = new System.Drawing.Size(315, 335);
             this.keysListView.TabIndex = 0;
             this.keysListView.UseCompatibleStateImageBehavior = false;
             this.keysListView.View = System.Windows.Forms.View.Details;
@@ -158,7 +157,7 @@ namespace CapsLockSharpPrototype
             // columnHeader1
             // 
             this.columnHeader1.Text = "按键";
-            this.columnHeader1.Width = 125;
+            this.columnHeader1.Width = 137;
             // 
             // columnHeader2
             // 
@@ -170,16 +169,13 @@ namespace CapsLockSharpPrototype
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(289, 378);
+            this.ClientSize = new System.Drawing.Size(315, 378);
             this.Controls.Add(this.splitContainer);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "MainForm";
             this.Text = "帮助";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Load += new System.EventHandler(this.MainForm_Load);
-            this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             this.contextMenuStrip.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
