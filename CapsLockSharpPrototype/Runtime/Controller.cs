@@ -161,7 +161,7 @@ namespace CapsLockSharpPrototype.Runtime
                 if (capslock_pressed_time_ == DateTime.MinValue)
                 {
                     capslock_pressed_time_ = DateTime.Now;
-                    Logger.Info("pressed");
+                    Logger.Info("capslock pressed");
                 }
             }
             else
@@ -182,25 +182,28 @@ namespace CapsLockSharpPrototype.Runtime
         private void OnOtherKey(GlobalKeyboardHookEventArgs e)
         {
             var keycode = (VirtualKey)e.KeyboardData.VirtualCode;
+            var state = e.KeyboardState == KeyboardState.KeyUp ? "up" : "down";
+            Logger.Info("## key=" + keycode + ", state=" + state + " hook=" + status_);
             if (!capslock_pressed_)
             {
-                return;
-            }
-            if (keycode == VirtualKey.RightShift)
-            {
-                e.Handled = false;
-                return;
-            }
-            if (keycode == VirtualKey.LeftShift && status_ == HookStatus.Hooking)
-            {
-                e.Handled = true;
+                Logger.Info("normal key=" + keycode + ", state=" + state);
                 return;
             }
 
             var keydown = e.KeyboardState == KeyboardState.KeyDown || e.KeyboardState == KeyboardState.SysKeyDown;
+            if (keycode == VirtualKey.LeftShift && !keydown && status_ == HookStatus.Hooking)
+            {
+                Logger.Info("** ignore key=" + keycode + ", state=" + state);
+                e.Handled = true;
+                return;
+            }
+
             if (modified_pressed_.ContainsKey(keycode))
             {
+                var old = modified_pressed_[keycode] == keydown;
                 modified_pressed_[keycode] = keydown;
+                e.Handled = old && status_ == HookStatus.Hooking;
+                Logger.Info("modified key=" + keycode + ", state=" + state + ", ignore=" + e.Handled);
                 return;
             }
 
@@ -212,11 +215,15 @@ namespace CapsLockSharpPrototype.Runtime
             var keyid = SourceKeyId(modified, keycode);
             if (keydown && status_ != HookStatus.Hooking && KeyToHook.ContainsKey(keyid))
             {
+                Logger.Info("-- hook key=" + keycode + ", state=" + state);
                 status_ = HookStatus.Hooking;
-                key_up(keycode);
                 ProcessKeyHook(KeyToHook[keyid]);
                 status_ = HookStatus.Hooked;
                 e.Handled = true;
+            }
+            else
+            {
+                Logger.Info("-- normal key=" + keycode + ", state=" + state);
             }
         }
 
@@ -254,7 +261,7 @@ namespace CapsLockSharpPrototype.Runtime
                 var arr = new List<VirtualKey>();
                 if ((it.Modified & ModifiedKey.Ctrl) == ModifiedKey.Ctrl) arr.Add(VirtualKey.Control);
                 if ((it.Modified & ModifiedKey.Alt) == ModifiedKey.Alt) arr.Add(VirtualKey.Menu);
-                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) arr.Add(VirtualKey.Shift);
+                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) arr.Add(VirtualKey.LeftShift);
                 if ((it.Modified & ModifiedKey.Win) == ModifiedKey.Win) arr.Add(VirtualKey.LeftWindows);
                 arr.AddRange(it.Keys);
                 key_clicks(arr);
