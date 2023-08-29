@@ -176,6 +176,7 @@ namespace CapsLockSharpPrototype
             this.Name = "MainForm";
             this.Text = "帮助";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += this.MainForm_OnLoad;
             this.contextMenuStrip.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();

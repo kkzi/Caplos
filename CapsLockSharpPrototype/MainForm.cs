@@ -15,17 +15,17 @@ namespace CapsLockSharpPrototype
         {
             get
             {
-                var Params = base.CreateParams;
-                // 避免在 Win+Tab 视图显示
-                Params.ExStyle |= 0x80;
-                return Params;
+                //var Params = base.CreateParams;
+                //// 避免在 Win+Tab 视图显示
+                //Params.ExStyle |= 0x80;
+                //return Params;
+                return base.CreateParams;
             }
         }
         public MainForm()
         {
+            Opacity = 0;
             InitializeComponent();
-            HideWindow();
-
             LoadHooks();
             CheckStartWithSystem();
             TrayIcon.RefleshIcon(notifyIcon);
@@ -47,27 +47,36 @@ namespace CapsLockSharpPrototype
 
         private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            ShowWindow();
+            Show();
+        }
+
+        private void MainForm_OnLoad(object sender, EventArgs e)
+        {
+            BeginInvoke(new Action(() =>
+            {
+                Hide();
+                Opacity = 1;
+            }));
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            HideWindow();
+            Hide();
             e.Cancel = true;
             //notifyIcon.Visible = false;
         }
 
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
-            if (WindowState == FormWindowState.Minimized)
-            {
-                ShowInTaskbar = false;
-            }
+            //if (WindowState == FormWindowState.Minimized)
+            //{
+            //    ShowInTaskbar = false;
+            //}
         }
 
         private void HelpMenuItem_Click(object sender, EventArgs e)
         {
-            ShowWindow();
+            Show();
         }
 
         private void startWithSystem_CheckedChanged(object sender, EventArgs e)
@@ -88,29 +97,16 @@ namespace CapsLockSharpPrototype
             }
         }
 
-        private void HideWindow()
-        {
-            WindowState = FormWindowState.Minimized;
-            ShowInTaskbar = false;
-            Visible = false;
-        }
-
-        private void ShowWindow()
-        {
-            ShowInTaskbar = true;
-            WindowState = FormWindowState.Normal;
-            Visible = true;
-            Activate();
-        }
         private void LoadHooks()
         {
-            KeyDefRuntime.KeyDefs = KeyDefRuntime.SetUpKeyDefs();
-            foreach (var item in KeyDefRuntime.KeyDefs)
+            KeyDefRuntime.NameToFunction.Add("ShowHelpWindow", () =>
             {
-                if (item.Type == KeyDefRuntime.FuncType.Replace)
-                {
-                    keysListView.Items.Add(new ListViewItem(new[] { $"[CapsLock] + {item.AdditionKey.ToString()}", item.ReplacingKey.ToString() }));
-                }
+                Visible = !Visible;
+            });
+
+            foreach (var item in KeyDefRuntime.SetUpKeyDefs())
+            {
+                keysListView.Items.Add(new ListViewItem(new[] { $"[CapsLock] + {item.SourceText}", item.TargetText }));
             }
             NotifyIcon = notifyIcon;
 

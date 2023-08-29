@@ -20,28 +20,34 @@ namespace CapsLockSharpPrototype.Runtime
             {VirtualKey.LeftWindows, false},
         };
 
-        private static void key_up(VirtualKey key)
+        private static DateTime capslock_pressed_time_ = DateTime.MinValue;
+        private static bool capslock_pressed_ = false;
+        private static bool capslock_busy_ = false;
+        private static Action<EventArgs> capslock_func_ = null;
+        private static HookStatus status_ = HookStatus.Normal;
+        private readonly GlobalKeyboardHook hook_ = new GlobalKeyboardHook();
+
+        private static void key_up(VirtualKey key, byte scan = 0)
         {
-            Logger.Info("-- key up " + key);
+            Logger.Info("-- key up " + key + " scan=" + scan);
 
             if (key == VirtualKey.CapsLock)
             {
-                if (modified_pressed_.ContainsKey(key))
-                {
-                    modified_pressed_[key] = false;
-                }
+                ResetModifies();
+                capslock_pressed_ = false;
             }
-            SendKeyEvent((int)key, 0, 2, UIntPtr.Zero);
-        }
-
-        private static void key_down(VirtualKey key)
-        {
-            Logger.Info("-- key down " + key);
             if (modified_pressed_.ContainsKey(key))
             {
-                modified_pressed_[key] = true;
+                modified_pressed_[key] = false;
             }
-            SendKeyEvent((int)key, 0, 0, UIntPtr.Zero);
+            SendKeyEvent((int)key, scan, 2, UIntPtr.Zero);
+        }
+
+        private static void key_down(VirtualKey key, byte scan = 0)
+        {
+            Logger.Info("-- key down " + key);
+            //UpdateModifiedKey(key, true);
+            SendKeyEvent((int)key, scan, 0, UIntPtr.Zero);
         }
 
         private static void key_click(VirtualKey key)
@@ -54,15 +60,7 @@ namespace CapsLockSharpPrototype.Runtime
         {
             Normal = 0,
             Hooking = 1,
-            Hooked = 2,
         }
-
-        private DateTime capslock_pressed_time_ = DateTime.MinValue;
-        private bool capslock_pressed_ = false;
-        private bool capslock_busy_ = false;
-        private Action<EventArgs> capslock_func_ = null;
-        private HookStatus status_ = HookStatus.Normal;
-        private readonly GlobalKeyboardHook hook_ = new GlobalKeyboardHook();
 
         public void SetupKeyboardHooks(Action<EventArgs> fun)
         {
@@ -88,9 +86,9 @@ namespace CapsLockSharpPrototype.Runtime
             {
                 return;
             }
-            capslock_pressed_ = e.KeyboardState == KeyboardState.KeyDown;
-            if (capslock_pressed_)
+            if (e.KeyboardState == KeyboardState.KeyDown)
             {
+                capslock_pressed_ = true;
                 if (capslock_pressed_time_ == DateTime.MinValue)
                 {
                     capslock_pressed_time_ = DateTime.Now;
@@ -99,67 +97,109 @@ namespace CapsLockSharpPrototype.Runtime
             }
             else
             {
-                if (status_ == HookStatus.Hooked)
-                {
-                    ResetModifies();
-                    status_ = HookStatus.Normal;
-                }
-                else if ((DateTime.Now - capslock_pressed_time_).TotalMilliseconds <= 500)
+                if ((DateTime.Now - capslock_pressed_time_).TotalMilliseconds <= 500)
                 {
                     var ms = (DateTime.Now - capslock_pressed_time_).TotalMilliseconds;
                     capslock_busy_ = true;
                     key_click(VirtualKey.CapsLock);
                     capslock_busy_ = false;
-                    capslock_pressed_ = false;
                     capslock_func_(e);
                 }
                 capslock_pressed_time_ = DateTime.MinValue;
+                capslock_pressed_ = false;
+                ResetModifies();
             }
             e.Handled = true;
         }
 
         private void OnOtherKey(GlobalKeyboardHookEventArgs e)
         {
-            var state = e.KeyboardState == KeyboardState.KeyUp || e.KeyboardState == KeyboardState.SysKeyUp ? "up" : "down";
             var keycode = (VirtualKey)e.KeyboardData.VirtualCode;
+            if (!capslock_pressed_)
+            {
+                return;
+            }
+            if (keycode == VirtualKey.RightShift)
+            {
+                e.Handled = false;
+                return;
+            }
             if (keycode == VirtualKey.LeftShift && status_ == HookStatus.Hooking)
             {
                 e.Handled = true;
                 return;
             }
 
-            var keydef = KeyDefs.FirstOrDefault(x => x.AdditionKey == keycode);
-            if (keydef.Equals(default(KeyDef)) || e.KeyboardState == KeyboardState.KeyUp || !capslock_pressed_)
+            var keydown = e.KeyboardState == KeyboardState.KeyDown || e.KeyboardState == KeyboardState.SysKeyDown;
+            if (modified_pressed_.ContainsKey(keycode))
             {
-                Logger.Info("normal key " + keycode + " " + state);
+                modified_pressed_[keycode] = keydown;
                 return;
             }
-            Logger.Info("hook key " + keycode + " " + state);
-            status_ = HookStatus.Hooking;
-            //key_up(VirtualKey.CapsLock);
-            key_up(keydef.AdditionKey);
-            key_down(keydef.ReplacingKey);
-            status_ = HookStatus.Hooked;
-            e.Handled = true;
+
+            ModifiedKey modified = ModifiedKey.None;
+            modified |= modified_pressed_[VirtualKey.LeftControl] ? ModifiedKey.Ctrl : ModifiedKey.None;
+            modified |= modified_pressed_[VirtualKey.LeftMenu] ? ModifiedKey.Alt : ModifiedKey.None;
+            modified |= modified_pressed_[VirtualKey.LeftWindows] ? ModifiedKey.Win : ModifiedKey.None;
+
+            var keyid = SourceKeyId(modified, keycode);
+            if (keydown && status_ == HookStatus.Normal && KeyToHook.ContainsKey(keyid))
+            {
+                status_ = HookStatus.Hooking;
+                key_up(keycode);
+                ProcessKeyHook(KeyToHook[keyid]);
+                status_ = HookStatus.Normal;
+                e.Handled = true;
+            }
         }
 
-        private void ResetModifies()
+        private static void ResetModifies()
         {
-            if (modified_pressed_[VirtualKey.LeftControl])
+            var keys = modified_pressed_.Keys.ToList();
+            for (var i = 0; i < modified_pressed_.Count; ++i)
             {
-                key_up(VirtualKey.LeftControl);
+                if (modified_pressed_[keys[i]])
+                {
+                    key_up(keys[i]);
+                }
             }
-            if (modified_pressed_[VirtualKey.LeftWindows])
+        }
+
+        private void ProcessKeyHook(KeyHookItem item)
+        {
+            if (item.Func != null)
             {
-                key_up(VirtualKey.LeftWindows);
+                item.Func();
+                return;
             }
-            if (modified_pressed_[VirtualKey.LeftMenu])
+
+            if (item.Targets.Count == 0)
             {
-                key_up(VirtualKey.LeftMenu);
+                return;
             }
-            if (modified_pressed_[VirtualKey.LeftShift])
+
+            foreach (var it in item.Targets)
             {
-                key_up(VirtualKey.LeftShift);
+                if ((it.Modified & ModifiedKey.Ctrl) == ModifiedKey.Ctrl) key_down(VirtualKey.LeftControl);
+                if ((it.Modified & ModifiedKey.Alt) == ModifiedKey.Alt) key_down(VirtualKey.LeftMenu);
+                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) key_down(VirtualKey.Shift, 0x2A);
+                if ((it.Modified & ModifiedKey.Win) == ModifiedKey.Win) key_down(VirtualKey.LeftWindows);
+
+                foreach (var k in it.Keys) key_down(k);
+                foreach (var k in it.Keys) key_up(k);
+
+                if ((it.Modified & ModifiedKey.Win) == ModifiedKey.Win) key_up(VirtualKey.LeftWindows);
+                if ((it.Modified & ModifiedKey.Alt) == ModifiedKey.Alt) key_up(VirtualKey.LeftMenu);
+                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) key_up(VirtualKey.Shift, 0x2A);
+                if ((it.Modified & ModifiedKey.Ctrl) == ModifiedKey.Ctrl) key_up(VirtualKey.LeftControl);
+            }
+        }
+
+        private static void UpdateModifiedKey(VirtualKey keycode, bool state)
+        {
+            if (modified_pressed_.ContainsKey(keycode))
+            {
+                modified_pressed_[keycode] = state;
             }
         }
     }
