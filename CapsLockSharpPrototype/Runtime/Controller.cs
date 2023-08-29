@@ -8,11 +8,51 @@ using System.Collections.Generic;
 
 namespace CapsLockSharpPrototype.Runtime
 {
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct INPUT
+    {
+        [FieldOffset(0)]
+        public int type;
+        [FieldOffset(4)]
+        public KEYBDINPUT ki;
+        [FieldOffset(4)]
+        public MOUSEINPUT mi;
+        [FieldOffset(4)]
+        public HARDWAREINPUT hi;
+    }
+    public struct MOUSEINPUT
+    {
+        public int dx;
+        public int dy;
+        public int mouseData;
+        public int dwFlags;
+        public int time;
+        public IntPtr dwExtraInfo;
+    }
+    public struct KEYBDINPUT
+    {
+        public short wVk;
+        public short wScan;
+        public int dwFlags;
+        public int time;
+        public IntPtr dwExtraInfo;
+    }
+    public struct HARDWAREINPUT
+    {
+        public int uMsg;
+        public short wParamL;
+        public short wParamH;
+    }
+
+    public class Keyboard
+    {
+        [DllImport("user32")]
+        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+    }
+
     public class Controller
     {
-        [DllImport("user32.dll", EntryPoint = "keybd_event", SetLastError = true)]
-        public static extern void SendKeyEvent(int bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
-
         private static Dictionary<VirtualKey, bool> modified_pressed_ = new Dictionary<VirtualKey, bool>() {
             {VirtualKey.LeftControl, false},
             {VirtualKey.LeftMenu , false},
@@ -33,33 +73,62 @@ namespace CapsLockSharpPrototype.Runtime
 
             if (key == VirtualKey.CapsLock)
             {
-                ResetModifies();
-                capslock_pressed_ = false;
+                RestHookStatus();
             }
             if (modified_pressed_.ContainsKey(key))
             {
                 modified_pressed_[key] = false;
             }
-            SendKeyEvent((int)key, scan, 2, UIntPtr.Zero);
+
+            var inputs = new INPUT[1];
+            inputs[0].type = 1;
+            inputs[0].ki.wVk = (short)key;
+            inputs[0].ki.dwFlags = 2;
+            Keyboard.SendInput(1u, inputs, Marshal.SizeOf((object)default(INPUT)));
         }
 
         private static void key_down(VirtualKey key, byte scan = 0)
         {
             Logger.Info("-- key down " + key);
             //UpdateModifiedKey(key, true);
-            SendKeyEvent((int)key, scan, 0, UIntPtr.Zero);
+            //Keyboard.SendInput((int)key, scan, 0, UIntPtr.Zero);
+
+            var inputs = new INPUT[1];
+            inputs[0].type = 1;
+            inputs[0].ki.wVk = (short)key;
+            Keyboard.SendInput(1u, inputs, Marshal.SizeOf((object)default(INPUT)));
         }
 
         private static void key_click(VirtualKey key)
         {
-            key_down(key);
-            key_up(key);
+            key_clicks(new List<VirtualKey> { key });
+        }
+
+        private static void key_clicks(List<VirtualKey> arr)
+        {
+            if (arr.Count == 0) return;
+            var len = arr.Count * 2;
+            var inputs = new INPUT[len];
+            for (var i = 0; i < arr.Count; ++i)
+            {
+                var key = (short)arr[i];
+                var upi = len - 1 - i;
+
+                inputs[i].type = 1;
+                inputs[i].ki.wVk = key;
+
+                inputs[upi].type = 1;
+                inputs[upi].ki.wVk = key;
+                inputs[upi].ki.dwFlags = 2;
+            }
+            Keyboard.SendInput((uint)len, inputs, Marshal.SizeOf((object)default(INPUT)));
         }
 
         private enum HookStatus
         {
             Normal = 0,
             Hooking = 1,
+            Hooked = 2,
         }
 
         public void SetupKeyboardHooks(Action<EventArgs> fun)
@@ -97,7 +166,7 @@ namespace CapsLockSharpPrototype.Runtime
             }
             else
             {
-                if ((DateTime.Now - capslock_pressed_time_).TotalMilliseconds <= 500)
+                if ((DateTime.Now - capslock_pressed_time_).TotalMilliseconds <= 500 && status_ == HookStatus.Normal)
                 {
                     var ms = (DateTime.Now - capslock_pressed_time_).TotalMilliseconds;
                     capslock_busy_ = true;
@@ -105,9 +174,7 @@ namespace CapsLockSharpPrototype.Runtime
                     capslock_busy_ = false;
                     capslock_func_(e);
                 }
-                capslock_pressed_time_ = DateTime.MinValue;
-                capslock_pressed_ = false;
-                ResetModifies();
+                RestHookStatus();
             }
             e.Handled = true;
         }
@@ -143,17 +210,17 @@ namespace CapsLockSharpPrototype.Runtime
             modified |= modified_pressed_[VirtualKey.LeftWindows] ? ModifiedKey.Win : ModifiedKey.None;
 
             var keyid = SourceKeyId(modified, keycode);
-            if (keydown && status_ == HookStatus.Normal && KeyToHook.ContainsKey(keyid))
+            if (keydown && status_ != HookStatus.Hooking && KeyToHook.ContainsKey(keyid))
             {
                 status_ = HookStatus.Hooking;
                 key_up(keycode);
                 ProcessKeyHook(KeyToHook[keyid]);
-                status_ = HookStatus.Normal;
+                status_ = HookStatus.Hooked;
                 e.Handled = true;
             }
         }
 
-        private static void ResetModifies()
+        private static void RestHookStatus()
         {
             var keys = modified_pressed_.Keys.ToList();
             for (var i = 0; i < modified_pressed_.Count; ++i)
@@ -163,6 +230,10 @@ namespace CapsLockSharpPrototype.Runtime
                     key_up(keys[i]);
                 }
             }
+
+            capslock_pressed_time_ = DateTime.MinValue;
+            capslock_pressed_ = false;
+            status_ = HookStatus.Normal;
         }
 
         private void ProcessKeyHook(KeyHookItem item)
@@ -180,18 +251,13 @@ namespace CapsLockSharpPrototype.Runtime
 
             foreach (var it in item.Targets)
             {
-                if ((it.Modified & ModifiedKey.Ctrl) == ModifiedKey.Ctrl) key_down(VirtualKey.LeftControl);
-                if ((it.Modified & ModifiedKey.Alt) == ModifiedKey.Alt) key_down(VirtualKey.LeftMenu);
-                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) key_down(VirtualKey.Shift, 0x2A);
-                if ((it.Modified & ModifiedKey.Win) == ModifiedKey.Win) key_down(VirtualKey.LeftWindows);
-
-                foreach (var k in it.Keys) key_down(k);
-                foreach (var k in it.Keys) key_up(k);
-
-                if ((it.Modified & ModifiedKey.Win) == ModifiedKey.Win) key_up(VirtualKey.LeftWindows);
-                if ((it.Modified & ModifiedKey.Alt) == ModifiedKey.Alt) key_up(VirtualKey.LeftMenu);
-                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) key_up(VirtualKey.Shift, 0x2A);
-                if ((it.Modified & ModifiedKey.Ctrl) == ModifiedKey.Ctrl) key_up(VirtualKey.LeftControl);
+                var arr = new List<VirtualKey>();
+                if ((it.Modified & ModifiedKey.Ctrl) == ModifiedKey.Ctrl) arr.Add(VirtualKey.Control);
+                if ((it.Modified & ModifiedKey.Alt) == ModifiedKey.Alt) arr.Add(VirtualKey.Menu);
+                if ((it.Modified & ModifiedKey.Shift) == ModifiedKey.Shift) arr.Add(VirtualKey.Shift);
+                if ((it.Modified & ModifiedKey.Win) == ModifiedKey.Win) arr.Add(VirtualKey.LeftWindows);
+                arr.AddRange(it.Keys);
+                key_clicks(arr);
             }
         }
 
