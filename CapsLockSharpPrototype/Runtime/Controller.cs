@@ -204,7 +204,7 @@ namespace CapsLockSharpPrototype.Runtime
             modified |= modified_pressed_[VirtualKey.LeftControl] ? ModifiedKey.Ctrl : ModifiedKey.None;
             modified |= modified_pressed_[VirtualKey.LeftMenu] ? ModifiedKey.Alt : ModifiedKey.None;
             //modified |= modified_pressed_[VirtualKey.LeftShift] ? ModifiedKey.Shift : ModifiedKey.None;
-            modified |= modified_pressed_[VirtualKey.LeftWindows] ? ModifiedKey.Win : ModifiedKey.None;
+            //modified |= modified_pressed_[VirtualKey.LeftWindows] ? ModifiedKey.Win : ModifiedKey.None;
 
             var keyid = SourceKeyId(modified, keycode);
             if (keydown && status_ != HookStatus.Hooking && KeyToHook.ContainsKey(keyid))

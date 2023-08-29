@@ -34,6 +34,7 @@ namespace CapsLockSharpPrototype
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -123,7 +124,7 @@ namespace CapsLockSharpPrototype
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Controls.Add(this.keysListView);
-            this.splitContainer.Size = new System.Drawing.Size(315, 378);
+            this.splitContainer.Size = new System.Drawing.Size(635, 378);
             this.splitContainer.SplitterDistance = 37;
             this.splitContainer.SplitterWidth = 6;
             this.splitContainer.TabIndex = 1;
@@ -149,7 +150,7 @@ namespace CapsLockSharpPrototype
             this.keysListView.Location = new System.Drawing.Point(0, 0);
             this.keysListView.MultiSelect = false;
             this.keysListView.Name = "keysListView";
-            this.keysListView.Size = new System.Drawing.Size(315, 335);
+            this.keysListView.Size = new System.Drawing.Size(635, 335);
             this.keysListView.TabIndex = 0;
             this.keysListView.UseCompatibleStateImageBehavior = false;
             this.keysListView.View = System.Windows.Forms.View.Details;
@@ -157,26 +158,28 @@ namespace CapsLockSharpPrototype
             // columnHeader1
             // 
             this.columnHeader1.Text = "按键";
-            this.columnHeader1.Width = 137;
+            this.columnHeader1.Width = 219;
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "替换为";
-            this.columnHeader2.Width = 144;
+            this.columnHeader2.Width = 382;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(315, 378);
+            this.ClientSize = new System.Drawing.Size(635, 378);
             this.Controls.Add(this.splitContainer);
             this.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "帮助";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Load += this.MainForm_OnLoad;
+            this.Load += new System.EventHandler(this.MainForm_OnLoad);
             this.contextMenuStrip.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();

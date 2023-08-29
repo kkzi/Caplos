@@ -1,15 +1,33 @@
 # Caplos 修改版
 
-修改项如下：
+## 修改项如下：
 - [x] 修改启动时帮助窗口先显示后隐藏的问题
 - [x] 短按 CAPSLOCK 为大小写锁定功能，长按 CAPSLOCK 无操作，视为犹豫行为
 - [x] 按个人习惯调整几个键位 
-   - CAPSLOCK+A -> HOME
-   - CAPSLOCK+E -> END
+   - CAPSLOCK+A           = Home
+   - CAPSLOCK+E           = End
+   - CAPSLOCK+H           = Left
+   - CAPSLOCK+J           = Down
+   - CAPSLOCK+K           = Up
+   - CAPSLOCK+L           = Right
+   - CAPSLOCK+Y           = Copy
+   - CAPSLOCK+P           = Paste
+   - CAPSLOCK+U           = Delete from cursor to line begin
+   - CAPSLOCK+C           = Delete from cursor to line end
+   - CAPSLOCK+S           = Delete current line
+   - CAPSLOCK+W           = Delete left word
+   - CAPSLOCK+O           = Insert blank before this line
+   - CAPSLOCK+Alt+?       = Show help window
 - [x] 只允许一个进程启动
 - [x] 修改默认配置文件打包方式
-- [ ] 调整配置文件格式
-- [ ] 支持 CAPSLOCK 组合按键
+- [x] 调整配置文件格式
+- [x] 支持 CAPSLOCK 组合按键：支持 ALT, CTRL
+
+## 下载
+[Caplos.exe](https://github.com/kkzi/Caplos/releases/download/v2.0.0/Caplos.exe)
+
+## 主界面
+![](./assets/CaplosHelp.png)
 
 
 <br/>
