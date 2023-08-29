@@ -67,10 +67,8 @@ namespace CapsLockSharpPrototype.Runtime
         private static HookStatus status_ = HookStatus.Normal;
         private readonly GlobalKeyboardHook hook_ = new GlobalKeyboardHook();
 
-        private static void key_up(VirtualKey key, byte scan = 0)
+        private static void key_up(VirtualKey key)
         {
-            Logger.Info("-- key up " + key + " scan=" + scan);
-
             if (key == VirtualKey.CapsLock)
             {
                 RestHookStatus();
@@ -87,12 +85,8 @@ namespace CapsLockSharpPrototype.Runtime
             Keyboard.SendInput(1u, inputs, Marshal.SizeOf((object)default(INPUT)));
         }
 
-        private static void key_down(VirtualKey key, byte scan = 0)
+        private static void key_down(VirtualKey key)
         {
-            Logger.Info("-- key down " + key);
-            //UpdateModifiedKey(key, true);
-            //Keyboard.SendInput((int)key, scan, 0, UIntPtr.Zero);
-
             var inputs = new INPUT[1];
             inputs[0].type = 1;
             inputs[0].ki.wVk = (short)key;
@@ -183,17 +177,16 @@ namespace CapsLockSharpPrototype.Runtime
         {
             var keycode = (VirtualKey)e.KeyboardData.VirtualCode;
             var state = e.KeyboardState == KeyboardState.KeyUp ? "up" : "down";
-            Logger.Info("## key=" + keycode + ", state=" + state + " hook=" + status_);
             if (!capslock_pressed_)
             {
-                Logger.Info("normal key=" + keycode + ", state=" + state);
                 return;
             }
 
+            Logger.Info("## key=" + keycode + ", state=" + state + ", status=" + status_);
             var keydown = e.KeyboardState == KeyboardState.KeyDown || e.KeyboardState == KeyboardState.SysKeyDown;
             if (keycode == VirtualKey.LeftShift && !keydown && status_ == HookStatus.Hooking)
             {
-                Logger.Info("** ignore key=" + keycode + ", state=" + state);
+                Logger.Info("** ignore key=" + keycode + ", state=" + state + ", status=" + status_);
                 e.Handled = true;
                 return;
             }
@@ -203,40 +196,43 @@ namespace CapsLockSharpPrototype.Runtime
                 var old = modified_pressed_[keycode] == keydown;
                 modified_pressed_[keycode] = keydown;
                 e.Handled = old && status_ == HookStatus.Hooking;
-                Logger.Info("modified key=" + keycode + ", state=" + state + ", ignore=" + e.Handled);
+                Logger.Info("modified key=" + keycode + " state=" + state + ", ignore=" + e.Handled);
                 return;
             }
 
             ModifiedKey modified = ModifiedKey.None;
             modified |= modified_pressed_[VirtualKey.LeftControl] ? ModifiedKey.Ctrl : ModifiedKey.None;
             modified |= modified_pressed_[VirtualKey.LeftMenu] ? ModifiedKey.Alt : ModifiedKey.None;
+            //modified |= modified_pressed_[VirtualKey.LeftShift] ? ModifiedKey.Shift : ModifiedKey.None;
             modified |= modified_pressed_[VirtualKey.LeftWindows] ? ModifiedKey.Win : ModifiedKey.None;
 
             var keyid = SourceKeyId(modified, keycode);
             if (keydown && status_ != HookStatus.Hooking && KeyToHook.ContainsKey(keyid))
             {
-                Logger.Info("-- hook key=" + keycode + ", state=" + state);
                 status_ = HookStatus.Hooking;
                 ProcessKeyHook(KeyToHook[keyid]);
                 status_ = HookStatus.Hooked;
                 e.Handled = true;
-            }
-            else
-            {
-                Logger.Info("-- normal key=" + keycode + ", state=" + state);
+
+                ResetModifies(new List<VirtualKey> { VirtualKey.LeftShift, VirtualKey.LeftWindows });
             }
         }
 
-        private static void RestHookStatus()
+        private static void ResetModifies(List<VirtualKey> keys = null)
         {
-            var keys = modified_pressed_.Keys.ToList();
-            for (var i = 0; i < modified_pressed_.Count; ++i)
+            if (keys == null) keys = modified_pressed_.Keys.ToList();
+            for (var i = 0; i < keys.Count; ++i)
             {
                 if (modified_pressed_[keys[i]])
                 {
                     key_up(keys[i]);
                 }
             }
+        }
+
+        private static void RestHookStatus()
+        {
+            ResetModifies();
 
             capslock_pressed_time_ = DateTime.MinValue;
             capslock_pressed_ = false;
@@ -256,6 +252,7 @@ namespace CapsLockSharpPrototype.Runtime
                 return;
             }
 
+            Logger.Info("%%% hook " + item.TargetText);
             foreach (var it in item.Targets)
             {
                 var arr = new List<VirtualKey>();
@@ -266,6 +263,7 @@ namespace CapsLockSharpPrototype.Runtime
                 arr.AddRange(it.Keys);
                 key_clicks(arr);
             }
+            Logger.Info("done");
         }
 
         private static void UpdateModifiedKey(VirtualKey keycode, bool state)
