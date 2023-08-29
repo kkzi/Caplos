@@ -213,8 +213,6 @@ namespace CapsLockSharpPrototype.Runtime
                 ProcessKeyHook(KeyToHook[keyid]);
                 status_ = HookStatus.Hooked;
                 e.Handled = true;
-
-                ResetModifies(new List<VirtualKey> { VirtualKey.LeftShift, VirtualKey.LeftWindows });
             }
         }
 
@@ -252,7 +250,7 @@ namespace CapsLockSharpPrototype.Runtime
                 return;
             }
 
-            Logger.Info("%%% hook " + item.TargetText);
+            Logger.Info("%% hook " + item.TargetText);
             foreach (var it in item.Targets)
             {
                 var arr = new List<VirtualKey>();
