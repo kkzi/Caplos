@@ -160,9 +160,8 @@ namespace CapsLockSharpPrototype.Runtime
             }
             else
             {
-                if ((DateTime.Now - capslock_pressed_time_).TotalMilliseconds <= 500 && status_ == HookStatus.Normal)
+                if ((DateTime.Now - capslock_pressed_time_).TotalMilliseconds <= 300 && status_ == HookStatus.Normal)
                 {
-                    var ms = (DateTime.Now - capslock_pressed_time_).TotalMilliseconds;
                     capslock_busy_ = true;
                     key_click(VirtualKey.CapsLock);
                     capslock_busy_ = false;
@@ -175,21 +174,21 @@ namespace CapsLockSharpPrototype.Runtime
 
         private void OnOtherKey(GlobalKeyboardHookEventArgs e)
         {
-            var keycode = (VirtualKey)e.KeyboardData.VirtualCode;
-            var state = e.KeyboardState == KeyboardState.KeyUp ? "up" : "down";
             if (!capslock_pressed_)
             {
                 return;
             }
 
+            var keycode = (VirtualKey)e.KeyboardData.VirtualCode;
+            var state = e.KeyboardState == KeyboardState.KeyUp ? "up" : "down";
             Logger.Info("## key=" + keycode + ", state=" + state + ", status=" + status_);
             var keydown = e.KeyboardState == KeyboardState.KeyDown || e.KeyboardState == KeyboardState.SysKeyDown;
-            if (keycode == VirtualKey.LeftShift && !keydown && status_ == HookStatus.Hooking)
-            {
-                Logger.Info("** ignore key=" + keycode + ", state=" + state + ", status=" + status_);
-                e.Handled = true;
-                return;
-            }
+            //if (keycode == VirtualKey.LeftShift && !keydown && status_ == HookStatus.Hooking)
+            //{
+            //    Logger.Info("** ignore key=" + keycode + ", state=" + state + ", status=" + status_);
+            //    e.Handled = true;
+            //    return;
+            //}
 
             if (modified_pressed_.ContainsKey(keycode))
             {
@@ -200,17 +199,10 @@ namespace CapsLockSharpPrototype.Runtime
                 return;
             }
 
-            ModifiedKey modified = ModifiedKey.None;
-            modified |= modified_pressed_[VirtualKey.LeftControl] ? ModifiedKey.Ctrl : ModifiedKey.None;
-            modified |= modified_pressed_[VirtualKey.LeftMenu] ? ModifiedKey.Alt : ModifiedKey.None;
-            //modified |= modified_pressed_[VirtualKey.LeftShift] ? ModifiedKey.Shift : ModifiedKey.None;
-            //modified |= modified_pressed_[VirtualKey.LeftWindows] ? ModifiedKey.Win : ModifiedKey.None;
-
-            var keyid = SourceKeyId(modified, keycode);
-            if (keydown && status_ != HookStatus.Hooking && KeyToHook.ContainsKey(keyid))
+            if (keydown && status_ != HookStatus.Hooking && KeyToHook.ContainsKey(keycode))
             {
                 status_ = HookStatus.Hooking;
-                ProcessKeyHook(KeyToHook[keyid]);
+                ProcessKeyHook(KeyToHook[keycode]);
                 status_ = HookStatus.Hooked;
                 e.Handled = true;
             }

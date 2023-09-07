@@ -117,7 +117,7 @@ namespace CapsLockSharpPrototype.Helper
                     {
                         keyhook.Targets = StringToKeyDefs(keyhook.TargetText);
                     }
-                    KeyToHook[SourceKeyId(keyhook.Source.Modified, keyhook.Source.Keys[0])] = keyhook;
+                    KeyToHook[keyhook.Source.Keys[0]] = keyhook;
                 }
                 catch (Exception e)
                 {
@@ -131,6 +131,6 @@ namespace CapsLockSharpPrototype.Helper
         // List of Virtual Key Codes
         // http://www.kbdedit.com/manual/low_level_vk_list.html
         public static IEnumerable<KeyHookItem> KeyDefs;
-        public static Dictionary<string, KeyHookItem> KeyToHook = new Dictionary<string, KeyHookItem>();
+        public static Dictionary<VirtualKey, KeyHookItem> KeyToHook = new Dictionary<VirtualKey, KeyHookItem>();
     }
 }
